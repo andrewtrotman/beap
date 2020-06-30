@@ -153,8 +153,18 @@ if (log) std::cout << "    up:[h:" << current_height << ","<< current_location <
 							current_location++;
 							if (current_location > end_of_row)
 								return -1;
-								
+							if (current_location >= elements)
+								{
+								current_location -= current_height;
+								current_height--;
+								end_of_row -= current_height + 2;
+								// in this case we went accross, but we went past the end of the array so we now need to go up
+if (log) std::cout << "upcros:[h:" << current_height << "," << current_location << "=" << array[current_location] << "]\n";
+								}
+							else
+								{
 if (log) std::cout << "across:[h:" << current_height << "," << current_location << "=" << array[current_location] << "]\n";
+								}
 							}
 						else
 							{
