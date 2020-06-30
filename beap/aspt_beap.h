@@ -83,11 +83,20 @@ if (log) std::cout << "replace:" << old_key << " -> " << new_key << "\n";
 				if (location < 0)
 					return -1;
 
+if (log) std::cout << "Find, now reshuffle" << old_key << " -> " << new_key << "\n";
+
 				array[location] = new_key;
 				if (new_key < old_key)
+					{
+if (log)
+std::cout << "beap_up(" << location << ")\n";
 					return beap_up(location);
+					}
 				else
+					{
+if (log) std::cout << "beap_down(" << location << ")\n";
 					return beap_down(location);
+					}
 				}
 				
 			/*
@@ -322,7 +331,7 @@ if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " p1:" 
 				while (1)
 					{
 if (log) std::cout << "h:" << current_height <<  " p1:" << parent << "(" << array[parent] << ")" << "\n";
-					if (current_height < 0 || array[current_location] > array[parent])
+					if (current_height <= 0 || array[current_location] > array[parent])
 						{
 if (log) std::cout << *this;
 						return current_location;
@@ -347,7 +356,7 @@ if (log) std::cout << *this;
 					int64_t parent = current_location - current_height - 1;
 if (log) std::cout << "h:" << current_height <<  " p1:" << parent << "(" << array[parent] << ")" << "\n";
 					// we only have one parent so walk up the (now) list checking
-					if (current_height < 0 || array[current_location] > array[parent])
+					if (current_height <= 0 || array[current_location] > array[parent])
 						{
 if (log) std::cout << *this;
 						return current_location;

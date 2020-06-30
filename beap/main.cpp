@@ -78,6 +78,7 @@ int main()
 		std::cout << (my_beap.isbeap() ? " BEAP" : " NOTBEAP") << "\n";
 		}
 	}
+
 	{
 	std::vector<int> sequence(100);
 	std::iota(sequence.begin(), sequence.end(), 1400);
@@ -90,23 +91,27 @@ int main()
 	std::cout << "\n" << my_beap;
 	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
 
-	my_beap.noise();
+//	my_beap.noise();
 
-#ifdef NEVER
-	my_beap.replace(1491, 1391);
-	std::cout << "\n" << my_beap;
-	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
+	std::cout << "\n**APPLY NOISE**\n";
 
-	my_beap.replace(1490, 1390);
-	std::cout << "\n" << my_beap;
-	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
-#endif
+	for (size_t x = 0; x < 1000000; x++)
+		{
 
-	my_beap.replace(1484, 1434);
+		size_t location = rand() % sequence.size();
+		my_beap.replace(sequence[location], sequence[location] + (rand() % 100) - 50);
+		if (!my_beap.isbeap())
+			{
+			std::cout << "After " << x << " changes\n";
+			std::cout << my_beap;
+			std::cout << "\nBROKEN\n";
+			exit(1);
+			}
+		}
+
 	std::cout << "\n" << my_beap;
 	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
 	}
-
 
 
 	return 0;
