@@ -84,9 +84,9 @@ if (log) std::cout << "replace:" << old_key << " -> " << new_key << "\n";
 					return -1;
 
 				array[location] = new_key;
-//				if (new_key < old_key)
-//					return beap_up(location);
-//				else
+				if (new_key < old_key)
+					return beap_up(location);
+				else
 					return beap_down(location);
 				}
 				
@@ -111,8 +111,7 @@ if (log) std::cout << "replace:" << old_key << " -> " << new_key << "\n";
 
 						if (array[current_location] > array[child1] || array[current_location] > array[child2])
 							{
-if (log)
-std::cout << "Fail at:" << current_location << " (" << array[current_location] << ")" << "\n";
+if (log) std::cout << "Fail at:" << current_location << " (" << array[current_location] << ")" << "\n";
 							return false;
 							}
 						}
@@ -196,8 +195,7 @@ if (log) std::cout << "down :[h:" << current_height << ","<< current_location <<
 
 				do
 					{
-if (log)
-std::cout << *this;
+if (log) std::cout << *this;
 					end_of_row += current_height + 2;
 					int64_t child1 = current_location + current_height + 1;
 					int64_t child2 = current_location + current_height + 2;
@@ -249,6 +247,117 @@ if (log) std::cout << " correct place\n";
 				while (1);
 
 				return -1;
+				}
+
+			/*
+				BEAP::BEAP_UP()
+				---------------
+				push up the beap (towards the root)
+				return the new location of the key in the array.
+			*/
+			int64_t beap_up(int64_t current_location)
+				{
+				int64_t current_height = get_height(current_location);
+				int64_t end_of_row = get_last(current_height);
+
+				do
+					{
+					int64_t start_of_row = end_of_row - current_height;
+
+					if (current_location == start_of_row)
+						return left_push(current_location, current_height);
+					else if (current_location == end_of_row)
+						return right_push(current_location, current_height);
+					else
+						{
+						int64_t parent1 = current_location - current_height - 1;
+						int64_t parent2 = current_location - current_height;
+
+if (log) std::cout << *this;
+if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " p1:" << parent1 << "(" << array[parent1] << ")" << " p2:" << parent2 << "(" << array[parent2] << ")" << "\n";
+
+						if (current_location <= 0)
+							{
+							return 0;
+							}
+						else if (array[current_location] < array[parent1])
+							{
+							if (array[parent1] >= array[parent2])
+								{
+								std::swap(array[current_location], array[parent1]);
+								current_location = parent1;
+								}
+							else
+								{
+								std::swap(array[current_location], array[parent2]);
+								current_location = parent2;
+								}
+							}
+						else if (array[current_location] < array[parent2])
+							{
+							std::swap(array[current_location], array[parent2]);
+							current_location = parent2;
+							}
+						else
+							return current_location;
+						}
+
+					current_height--;
+					end_of_row -= current_height + 2;
+					}
+				while (1);
+
+				return -1;
+				}
+
+			/*
+				BEAP::LEFT_PUSH()
+				-----------------
+				return the new location of the key in the array.
+			*/
+			int64_t left_push(int64_t current_location, int64_t current_height)
+				{
+				int64_t parent = current_location - current_height;
+
+				while (1)
+					{
+if (log) std::cout << "h:" << current_height <<  " p1:" << parent << "(" << array[parent] << ")" << "\n";
+					if (current_height < 0 || array[current_location] > array[parent])
+						{
+if (log) std::cout << *this;
+						return current_location;
+						}
+
+					std::swap(array[current_location], array[parent]);
+					current_height--;
+					current_location = parent;
+					parent -= current_height;
+					}
+				}
+
+			/*
+				BEAP::RIGHT_PUSH()
+				------------------
+				return the new location of the key in the array.
+			*/
+			int64_t right_push(int64_t current_location, int64_t current_height)
+				{
+				while (1)
+					{
+					int64_t parent = current_location - current_height - 1;
+if (log) std::cout << "h:" << current_height <<  " p1:" << parent << "(" << array[parent] << ")" << "\n";
+					// we only have one parent so walk up the (now) list checking
+					if (current_height < 0 || array[current_location] > array[parent])
+						{
+if (log) std::cout << *this;
+						return current_location;
+						}
+
+					std::swap(array[current_location], array[parent]);
+					current_height--;
+					current_location = parent;
+					parent -= current_height;
+					}
 				}
 
 			/*

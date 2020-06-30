@@ -55,6 +55,7 @@ int main()
 	/*
 		Populate an array with the shuffled sequence 0..instance.size()
 	*/
+	{
 	std::vector<int> sequence(100);
 	std::iota(sequence.begin(), sequence.end(), 0);
 	std::random_device random_number_generator;
@@ -64,11 +65,11 @@ int main()
 	JASS::bleap<int> my_beap(sequence.data(), sequence.size());
 	my_beap.unittest();
 
-//	std::cout << "\n" << my_beap;
+	std::cout << "\n" << my_beap;
 	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
 
 	find(sequence, my_beap);
-	for (int x = 0; x < 1000; x++)
+	for (int x = 0; x < 2; x++)
 		{
 //		my_beap.noise();
 		shuffle(sequence, my_beap);
@@ -76,6 +77,37 @@ int main()
 //		std::cout << "\n" << my_beap;
 		std::cout << (my_beap.isbeap() ? " BEAP" : " NOTBEAP") << "\n";
 		}
+	}
+	{
+	std::vector<int> sequence(100);
+	std::iota(sequence.begin(), sequence.end(), 1400);
+	std::random_device random_number_generator;
+	std::shuffle(sequence.begin(), sequence.end(), std::knuth_b(1));
+
+	JASS::bleap<int> my_beap(sequence.data(), sequence.size());
+	my_beap.unittest();
+
+	std::cout << "\n" << my_beap;
+	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
+
+	my_beap.noise();
+
+#ifdef NEVER
+	my_beap.replace(1491, 1391);
+	std::cout << "\n" << my_beap;
+	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
+
+	my_beap.replace(1490, 1390);
+	std::cout << "\n" << my_beap;
+	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
+#endif
+
+	my_beap.replace(1484, 1434);
+	std::cout << "\n" << my_beap;
+	std::cout << (my_beap.isbeap() ? "BEAP" : "NOTBEAP") << "\n";
+	}
+
+
 
 	return 0;
 	}
