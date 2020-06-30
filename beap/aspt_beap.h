@@ -20,6 +20,14 @@ namespace JASS
 			int64_t height;				///< height of the beap
 
 		public:
+
+
+bool log;
+void noise()
+{
+log = true;
+}
+
 			/*
 				BEAP::BEAP()
 				------------
@@ -30,6 +38,7 @@ namespace JASS
 				elements(elements),
 				height(get_height(elements))
 				{
+log=false;
 				std::sort(array, array + elements);
 				}
 
@@ -69,14 +78,10 @@ namespace JASS
 			*/
 			int64_t replace(TYPE old_key, TYPE new_key)
 				{
+if (log) std::cout << "replace:" << old_key << " -> " << new_key << "\n";
 				int64_t location = find(old_key);
 				if (location < 0)
-					{
-std::cout << old_key << " Not found\n";
-std::cout << *this << "\n";
-
 					return -1;
-					}
 
 				array[location] = new_key;
 //				if (new_key < old_key)
@@ -105,7 +110,11 @@ std::cout << *this << "\n";
 							return true;
 
 						if (array[current_location] > array[child1] || array[current_location] > array[child2])
+							{
+if (log)
+std::cout << "Fail at:" << current_location << " (" << array[current_location] << ")" << "\n";
 							return false;
+							}
 						}
 					}
 				return true;
@@ -125,7 +134,7 @@ std::cout << *this << "\n";
 				int64_t current_location = get_first(height);
 				int64_t end_of_row = get_last(height);
 
-//std::cout << " start:[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
+if (log) std::cout << " start:[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
 				do
 					{
 					if (key < array[current_location])
@@ -135,7 +144,7 @@ std::cout << *this << "\n";
 						end_of_row -= current_height + 2;
 						if (current_location < 0)
 							return -1;
-//std::cout << "    up:[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
+if (log) std::cout << "    up:[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
 						}
 					else if (key > array[current_location])
 						{
@@ -144,7 +153,8 @@ std::cout << *this << "\n";
 							current_location++;
 							if (current_location > end_of_row)
 								return -1;
-//std::cout << "across:[h:" << current_height << "," << current_location << "=" << array[current_location] << "]\n";
+								
+if (log) std::cout << "across:[h:" << current_height << "," << current_location << "=" << array[current_location] << "]\n";
 							}
 						else
 							{
@@ -153,7 +163,7 @@ std::cout << *this << "\n";
 							end_of_row += current_height + 1;
 							if (current_location > end_of_row)
 								return -1;
-//std::cout << "down :[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
+if (log) std::cout << "down :[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
 							}
 						}
 					else	// not greater and not less than (so must be equal to)
@@ -176,24 +186,53 @@ std::cout << *this << "\n";
 
 				do
 					{
+if (log)
+std::cout << *this;
 					end_of_row += current_height + 2;
 					int64_t child1 = current_location + current_height + 1;
-					int64_t child2 = std::min(current_location + current_height + 2, end_of_row);
+					int64_t child2 = current_location + current_height + 2;
+if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " c1:" << child1 << "(" << array[child1] << ")" << " c2:" << child2 << "(" << array[child2] << ")" << "\n";
 
 					if (child1 >= elements)
+						{
+if (log) std::cout << " past end\n";
+
 						return current_location;		// we're on the the row before a partial bottom row
+						}
 					else if (array[current_location] > array[child1])
 						{
-						std::swap(array[current_location], array[child1]);
-						current_location = child1;
+						if (child2 >= elements)
+							{
+if (log) std::cout << " swap with child1\n";
+							std::swap(array[current_location], array[child1]);
+							return child1;
+							}
+
+						if (array[child1] <= array[child2])
+							{
+if (log) std::cout << " swap with child1\n";
+							std::swap(array[current_location], array[child1]);
+							current_location = child1;
+							}
+						else
+							{
+if (log) std::cout << " swap with child2\n";
+							std::swap(array[current_location], array[child2]);
+							current_location = child2;
+							}
 						}
-					else if (array[current_location] > array[child2])
+					else if (child2 < elements && array[current_location] > array[child2])
 						{
-						std::swap(array[current_location], array[child1]);
+if (log) std::cout << " swap with child2\n";
+
+						std::swap(array[current_location], array[child2]);
 						current_location = child2;
 						}
 					else
+						{
+if (log) std::cout << " correct place\n";
 						return current_location;
+						}
 
 					current_height++;
 					}
@@ -236,11 +275,11 @@ std::cout << *this << "\n";
 		std::cout << "height :" << object.height << "\n";
 		for (int64_t current_height = 0; current_height <= object.height; current_height++)
 			{
-			stream.width(2);
+			stream.width(3);
 			stream << current_height << ":";
 			for (int64_t element = object.get_first(current_height); element <= object.get_last(current_height); element++)
 				{
-				stream.width(2);
+				stream.width(3);
 				if (element < object.elements)
 					stream << object.array[element] << " ";
 				}
