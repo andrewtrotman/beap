@@ -25,8 +25,7 @@
 /* Begin PBXFileReference section */
 		4984682124A998E600590DEA /* beap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = beap; sourceTree = BUILT_PRODUCTS_DIR; };
 		4984682424A998E600590DEA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		4984682B24A9991C00590DEA /* beap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = beap.h; sourceTree = "<group>"; };
-		4984682C24A99D9C00590DEA /* aspt_beap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = aspt_beap.h; sourceTree = "<group>"; };
+		4984682C24A99D9C00590DEA /* beap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = beap.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,8 +58,7 @@
 		4984682324A998E600590DEA /* beap */ = {
 			isa = PBXGroup;
 			children = (
-				4984682C24A99D9C00590DEA /* aspt_beap.h */,
-				4984682B24A9991C00590DEA /* beap.h */,
+				4984682C24A99D9C00590DEA /* beap.h */,
 				4984682424A998E600590DEA /* main.cpp */,
 			);
 			path = beap;
