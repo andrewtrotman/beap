@@ -10,7 +10,7 @@
 	SHUFFLE()
 	---------
 */
-void shuffle(std::vector<int> &sequence, JASS::bleap<int> &my_beap)
+void shuffle(std::vector<int> &sequence, JASS::beap<int> &my_beap)
 	{
 	for (int x = 0; x < sequence.size() * 10; x++)
 		{
@@ -18,6 +18,7 @@ void shuffle(std::vector<int> &sequence, JASS::bleap<int> &my_beap)
 		my_beap.replace(sequence[location], sequence[location] + 100);
 		if (!my_beap.isbeap())
 			{
+			std::cout << my_beap;
 			std::cout << "BROKEN\n";
 			exit(1);
 			}
@@ -29,7 +30,7 @@ void shuffle(std::vector<int> &sequence, JASS::bleap<int> &my_beap)
 	FIND()
 	------
 */
-void find(std::vector<int> &sequence, JASS::bleap<int> &my_beap)
+void find(std::vector<int> &sequence, JASS::beap<int> &my_beap)
 	{
 	int64_t found = 0;
 	for (int x = 0; x < sequence.size(); x++)
@@ -62,7 +63,7 @@ int main()
 //	std::shuffle(sequence.begin(), sequence.end(), std::knuth_b(random_number_generator()));
 	std::shuffle(sequence.begin(), sequence.end(), std::knuth_b(1));
 
-	JASS::bleap<int> my_beap(sequence.data(), sequence.size());
+	JASS::beap<int> my_beap(sequence.data(), sequence.size());
 	my_beap.unittest();
 
 	std::cout << "\n" << my_beap;
@@ -85,7 +86,7 @@ int main()
 	std::random_device random_number_generator;
 	std::shuffle(sequence.begin(), sequence.end(), std::knuth_b(1));
 
-	JASS::bleap<int> my_beap(sequence.data(), sequence.size());
+	JASS::beap<int> my_beap(sequence.data(), sequence.size());
 	my_beap.unittest();
 
 	std::cout << "\n" << my_beap;

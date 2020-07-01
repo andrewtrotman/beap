@@ -8,44 +8,52 @@
 
 namespace JASS
 	{
+	/*
+		CLASS BEAP
+		----------
+	*/
+	/*!
+		@brief Bi-parental heap over a fixed length array (min-beap)
+	*/
 	template <typename TYPE>
-	class bleap
+	class beap
 		{
 		template <typename T>
-		friend std::ostream &operator<<(std::ostream &into, const bleap<T> &object);
+		friend std::ostream &operator<<(std::ostream &into, const beap<T> &object);
 
 		private:
-			TYPE *array;				///< the array that is the beap
-			int64_t elements;			///< elements in the beap
+			TYPE *array;					///< the array that is the beap
+			int64_t elements;				///< elements in the beap
 			int64_t height;				///< height of the beap
 
 		public:
-
-
-bool log;
-void noise()
-{
-log = true;
-}
 
 			/*
 				BEAP::BEAP()
 				------------
 				min beap (the lowest value is at array[0]
 			*/
-			bleap(TYPE *array, int64_t elements):
+			/*!
+				@brief Constructor of min-beap (array[0] is the smallest element and values increase as you go down the tree).
+				@param array [in] The array to use as the beap.  This is assumed to be pre-populated, full, and out of order
+				@param elements [in] The number of elements in the array (and therefore the beap) to use
+			*/
+			beap(TYPE *array, int64_t elements):
 				array(array),
 				elements(elements),
 				height(get_height(elements))
 				{
-log=false;
 				std::sort(array, array + elements);
 				}
 
 			/*
 				BEAP::GET_HEIGHT()
 				------------------
-				return the row number given the index (both count from 0) (so get_height(0) == 0, get_height(1) == 1, get_height(2) == 1)
+			*/
+			/*!
+				@brief Return the row number of the element array[element].  Counting from 0, so get_height(0) == 0, get_height(1) == 1, get_height(2) == 1, etc.
+				@param element [in] The index into the array (counting from 0).
+				@return The row of the tree that holds array[element].
 			*/
 			int64_t get_height(int64_t element) const
 				{
@@ -55,7 +63,11 @@ log=false;
 			/*
 				BEAP::GET_FIRST()
 				-----------------
-				both count from  0 (so get_first(0) == 0), get_first(1) == 1);
+			*/
+			/*!
+				@brief Return the first element of the row at the row given by height.  Both count from  0 (so get_first(0) == 0), get_first(1) == 1).
+				@param height [in] The row number.
+				@return The index into array[] of the first element of the row given by height.
 			*/
 			int64_t get_first(int64_t height) const
 				{
@@ -67,6 +79,11 @@ log=false;
 				----------------
 				both count from  0 (so get_last(0) == 0), get_first(1) == 2);
 			*/
+			/*!
+				@brief Return the last element of the row at the row given by height.  Both count from  0 ((so get_last(0) == 0), get_first(1) == 2))
+				@param height [in] The row number.
+				@return The index into array[] of the last element of the row given by height
+			*/
 			int64_t get_last(int64_t height) const
 				{
 				return (height + 1) * (height + 2) / 2 - 1;
@@ -74,27 +91,34 @@ log=false;
 			/*
 				BEAP::REPLACE()
 				---------------
-				return -1 on not found, or the location of new_key after it has been added
 			*/
-			int64_t replace(TYPE old_key, TYPE new_key)
+			/*!
+				@brief Find and instance of old_key, replace it with new_key, and reshuffle the beap to maintain the beap property
+				@param old_key [in] The old key (the one to find)
+				@param new_key [in] The new key (an instance old_key is replaced by new_key).
+				@return -1 if old_key cannot be found, or the index into array of the new location of new_key
+			*/
+			int64_t replace(const TYPE &old_key, const TYPE &new_key)
 				{
-if (log) std::cout << "replace:" << old_key << " -> " << new_key << "\n";
+				/*
+					Find the old key
+				*/
 				int64_t location = find(old_key);
 				if (location < 0)
 					return -1;
 
-if (log) std::cout << "Find, now reshuffle" << old_key << " -> " << new_key << "\n";
-
-				array[location] = new_key;
+				/*
+					Rebuild the beap.
+					Note that "array[location] = new_key" must happen after the  compare as old_key might be a reference to array[location]
+				*/
 				if (new_key < old_key)
 					{
-if (log)
-std::cout << "beap_up(" << location << ")\n";
+					array[location] = new_key;
 					return beap_up(location);
 					}
 				else
 					{
-if (log) std::cout << "beap_down(" << location << ")\n";
+					array[location] = new_key;
 					return beap_down(location);
 					}
 				}
@@ -104,25 +128,26 @@ if (log) std::cout << "beap_down(" << location << ")\n";
 				--------------
 				return true if a beap else return false
 			*/
-			bool isbeap(void)
+			/*!
+				@brief Check the beap to make sure it is, indeed, a beap.
+				@return true if array[] is a beap, false otherwise.
+			*/
+			bool isbeap(void) const
 				{
 				int64_t end_of_row = 0;
 				for (int64_t current_height = 0; current_height < height; current_height++)
 					{
 					end_of_row += get_last(current_height + 1);
-					for (int64_t current_location = get_first(current_height); current_location <= get_last(current_height); current_location++)
+					size_t end_of_current_row = get_last(current_height);
+					for (int64_t current_location = get_first(current_height); current_location <= end_of_current_row; current_location++)
 						{
 						int64_t child1 = current_location + current_height + 1;
 						int64_t child2 = std::min(current_location + current_height + 2, elements - 1);
 
 						if (child1 >= elements)
 							return true;
-
 						if (array[current_location] > array[child1] || array[current_location] > array[child2])
-							{
-if (log) std::cout << "Fail at:" << current_location << " (" << array[current_location] << ")" << "\n";
 							return false;
-							}
 						}
 					}
 				return true;
@@ -133,7 +158,12 @@ if (log) std::cout << "Fail at:" << current_location << " (" << array[current_lo
 				------------
 				return -ve on not found, or the index into array[] on found.
 			*/
-			int64_t find(TYPE key)
+			/*!
+				@brief Find an instance of key in the beap and return its index into array[].
+				@param key [in] The key to look for.
+				@return The index into array[] of an instance of key, or -1 if key cannot be found in the beap.
+			*/
+			int64_t find(const TYPE &key) const
 				{
 				/*
 					Start in the bottom right corner of the beap
@@ -142,50 +172,64 @@ if (log) std::cout << "Fail at:" << current_location << " (" << array[current_lo
 				int64_t current_location = get_first(height);
 				int64_t end_of_row = get_last(height);
 
-if (log) std::cout << " start:[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
 				do
 					{
 					if (key < array[current_location])
 						{
+						/*
+							If key is less then the current location them move up one level of the beap
+						*/
 						current_location -= current_height;
 						current_height--;
 						end_of_row -= current_height + 2;
 						if (current_location < 0)
 							return -1;
-if (log) std::cout << "    up:[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
 						}
 					else if (key > array[current_location])
 						{
+						/*
+							If key is greater then either go down (if we can) or accoss (if we're on the bottom row)
+						*/
 						if (current_height == height || current_location + current_height + 2 >= elements)
 							{
+							/*
+								Can't go down so go across
+							*/
 							current_location++;
 							if (current_location > end_of_row)
 								return -1;
 							if (current_location >= elements)
 								{
+								/*
+									In this case we can't go across because we're on the bottom row and have a partially full row that we're at the edge of, so
+									the next largest value might be up and to the right (i.e. the bottom row of the previous full row).  In other words, the
+									full row above are the leaves and we need to go across a leaf, but that leaf isn't on the bottom ro because bottom row isn't full.
+								*/
 								current_location -= current_height;
 								current_height--;
 								end_of_row -= current_height + 2;
 								// in this case we went accross, but we went past the end of the array so we now need to go up
-if (log) std::cout << "upcros:[h:" << current_height << "," << current_location << "=" << array[current_location] << "]\n";
-								}
-							else
-								{
-if (log) std::cout << "across:[h:" << current_height << "," << current_location << "=" << array[current_location] << "]\n";
 								}
 							}
 						else
 							{
+							/*
+								Go down because we can.
+							*/
 							current_location += current_height + 2;
 							current_height++;
 							end_of_row += current_height + 1;
 							if (current_location > end_of_row)
 								return -1;
-if (log) std::cout << "down :[h:" << current_height << ","<< current_location << "=" << array[current_location] << "]\n";
 							}
 						}
-					else	// not greater and not less than (so must be equal to)
+					else
+						{
+						/*
+							Not less than and not greater than so we've found the key in the beap
+						*/
 						return current_location;
+						}
 					}
 				while (1);
 
@@ -195,59 +239,69 @@ if (log) std::cout << "down :[h:" << current_height << ","<< current_location <<
 			/*
 				BEAP::BEAP_DOWN()
 				-----------------
-				push down the beap (towards the leaves)
+			*/
+			/*!
+				@brief Re-shuffle the beap from current_location towards the leaves.
+				@param current_location [in] The locaiton to reshuffle from.
+				@return The new location in array[] of the element that was at current_location.
 			*/
 			int64_t beap_down(int64_t current_location)
 				{
 				int64_t current_height = get_height(current_location);
-				int64_t end_of_row = get_last(current_height);
 
 				do
 					{
-if (log) std::cout << *this;
-					end_of_row += current_height + 2;
 					int64_t child1 = current_location + current_height + 1;
 					int64_t child2 = current_location + current_height + 2;
-if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " c1:" << child1 << "(" << array[child1] << ")" << " c2:" << child2 << "(" << array[child2] << ")" << "\n";
 
 					if (child1 >= elements)
 						{
-if (log) std::cout << " past end\n";
-
-						return current_location;		// we're on the the row before a partial bottom row
+						/*
+							On the second to last row, but the last row in incomplete, so we can't move down, so we're in the right place.
+						*/
+						return current_location;
 						}
 					else if (array[current_location] > array[child1])
 						{
+						/*
+							Move down, swap with the largest child.
+						*/
 						if (child2 >= elements)
 							{
-if (log) std::cout << " swap with child1\n";
+							/*
+								On the second to last row, but the last row in incomplete, so we can't move down, so we're in the right place.
+							*/
 							std::swap(array[current_location], array[child1]);
 							return child1;
 							}
 
+						/*
+							Swap with the smallest child
+						*/
 						if (array[child1] <= array[child2])
 							{
-if (log) std::cout << " swap with child1\n";
 							std::swap(array[current_location], array[child1]);
 							current_location = child1;
 							}
 						else
 							{
-if (log) std::cout << " swap with child2\n";
 							std::swap(array[current_location], array[child2]);
 							current_location = child2;
 							}
 						}
 					else if (child2 < elements && array[current_location] > array[child2])
 						{
-if (log) std::cout << " swap with child2\n";
-
+						/*
+							We're between child 1 and child 2
+						*/
 						std::swap(array[current_location], array[child2]);
 						current_location = child2;
 						}
 					else
 						{
-if (log) std::cout << " correct place\n";
+						/*
+							We're in the correct place
+						*/
 						return current_location;
 						}
 
@@ -255,14 +309,17 @@ if (log) std::cout << " correct place\n";
 					}
 				while (1);
 
-				return -1;
+				return -1;		// cannot happen
 				}
 
 			/*
 				BEAP::BEAP_UP()
 				---------------
-				push up the beap (towards the root)
-				return the new location of the key in the array.
+			*/
+			/*!
+				@brief Re-shuffle the beap from current_location towards the root.
+				@param current_location [in] The locaiton to reshuffle from.
+				@return The new location in array[] of the element that was at current_location.
 			*/
 			int64_t beap_up(int64_t current_location)
 				{
@@ -273,24 +330,33 @@ if (log) std::cout << " correct place\n";
 					{
 					int64_t start_of_row = end_of_row - current_height;
 
+					/*
+						If we're at and edge then we only need to do a linear search, special handeling is done in left_push() and right_push()
+					*/
 					if (current_location == start_of_row)
 						return left_push(current_location, current_height);
 					else if (current_location == end_of_row)
 						return right_push(current_location, current_height);
 					else
 						{
+						/*
+							We're in the middle of the tree
+						*/
 						int64_t parent1 = current_location - current_height - 1;
 						int64_t parent2 = current_location - current_height;
 
-if (log) std::cout << *this;
-if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " p1:" << parent1 << "(" << array[parent1] << ")" << " p2:" << parent2 << "(" << array[parent2] << ")" << "\n";
-
 						if (current_location <= 0)
 							{
+							/*
+								We're at the root of the beap
+							*/
 							return 0;
 							}
 						else if (array[current_location] < array[parent1])
 							{
+							/*
+								We need to shuffle up towards the root, so swap with the largest parent.
+							*/
 							if (array[parent1] >= array[parent2])
 								{
 								std::swap(array[current_location], array[parent1]);
@@ -304,11 +370,19 @@ if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " p1:" 
 							}
 						else if (array[current_location] < array[parent2])
 							{
+							/*
+								We're between each parent so swap with the largest parent.
+							*/
 							std::swap(array[current_location], array[parent2]);
 							current_location = parent2;
 							}
 						else
+							{
+							/*
+								Not smaller than either partnt so in the right place.
+							*/
 							return current_location;
+							}
 						}
 
 					current_height--;
@@ -324,24 +398,24 @@ if (log) std::cout << "h:" << current_height << " eor:" << end_of_row << " p1:" 
 				-----------------
 				return the new location of the key in the array.
 			*/
+			/*!
+				@brief Re-shuffle the beap from current_location towards the root, where current_location is on the left hand edge of the tree.
+				@param current_location [in] The locaiton to reshuffle from.
+				@param current_height [in] The row number of current_location.
+				@return The new location in array[] of the element that was at current_location.
+			*/
 			int64_t left_push(int64_t current_location, int64_t current_height)
 				{
 				int64_t parent = current_location - current_height;
 
-				while (1)
+				while (current_height > 0 && array[current_location] <= array[parent])
 					{
-if (log) std::cout << "h:" << current_height <<  " p1:" << parent << "(" << array[parent] << ")" << "\n";
-					if (current_height <= 0 || array[current_location] > array[parent])
-						{
-if (log) std::cout << *this;
-						return current_location;
-						}
-
 					std::swap(array[current_location], array[parent]);
 					current_height--;
 					current_location = parent;
 					parent -= current_height;
 					}
+				return current_location;
 				}
 
 			/*
@@ -349,29 +423,32 @@ if (log) std::cout << *this;
 				------------------
 				return the new location of the key in the array.
 			*/
+			/*!
+				@brief Re-shuffle the beap from current_location towards the root, where current_location is on the right hand edge of the tree.
+				@param current_location [in] The locaiton to reshuffle from.
+				@param current_height [in] The row number of current_location.
+				@return The new location in array[] of the element that was at current_location.
+			*/
 			int64_t right_push(int64_t current_location, int64_t current_height)
 				{
-				while (1)
+				int64_t parent = current_location - current_height - 1;
+				while (current_height > 0 && array[current_location] <= array[parent])
 					{
-					int64_t parent = current_location - current_height - 1;
-if (log) std::cout << "h:" << current_height <<  " p1:" << parent << "(" << array[parent] << ")" << "\n";
-					// we only have one parent so walk up the (now) list checking
-					if (current_height <= 0 || array[current_location] > array[parent])
-						{
-if (log) std::cout << *this;
-						return current_location;
-						}
-
 					std::swap(array[current_location], array[parent]);
 					current_height--;
 					current_location = parent;
-					parent -= current_height;
+					parent -= current_height + 1;
 					}
+				return current_location;
 				}
+
 
 			/*
 				BEAP::UNITTEST()
 				----------------
+			*/
+			/*!
+				@brief Unit test this class
 			*/
 			void unittest(void) const
 				{
@@ -398,7 +475,7 @@ if (log) std::cout << *this;
 		------------
 	*/
 	template <typename TYPE>
-	static std::ostream &operator<<(std::ostream &stream, const bleap<TYPE> &object)
+	static std::ostream &operator<<(std::ostream &stream, const beap<TYPE> &object)
 		{
 		std::cout << "height :" << object.height << "\n";
 		for (int64_t current_height = 0; current_height <= object.height; current_height++)
