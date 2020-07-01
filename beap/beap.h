@@ -1,6 +1,14 @@
 /*
 	BEAP.H
 	------
+	Copyright (c) 2020 Andrew Trotman
+	Released under the 2-clause BSD license (See:https://en.wikipedia.org/wiki/BSD_licenses)
+*/
+/*!
+	@file
+	@brief Bi-parental heap over a fixed length array (min-beap).
+	@author Andrew Trotman
+	@copyright 2020 Andrew Trotman
 */
 #include <math.h>
 
@@ -16,7 +24,7 @@ namespace JASS
 		----------
 	*/
 	/*!
-		@brief Bi-parental heap over a fixed length array (min-beap)
+		@brief Bi-parental heap over a fixed length array (min-beap).
 		@details see:
 		J.I. Munro, H. Suwanda (1980), Implicit data structures for fast search and update, Journal of Computer and System Sciences, 21(2):236-250, https://doi.org/10.1016/0022-0000(80)90037-9. (http://www.sciencedirect.com/science/article/pii/0022000080900379)
 	*/
